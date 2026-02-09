@@ -135,3 +135,42 @@ python main.py
 
 - 你的自定义插件分发
 - 官方 `openclaw` 插件实例
+
+### 在 `main.py` 中重载插件配置
+
+如果你使用的是当前仓库的启动方式，可在 `main.py` 保留以下重载流程：
+
+```python
+def reload():
+    global plugins, root_transfer, transfer, task_dict
+    plugins = plugins_loader.load_plugins()  # 重新加载自定义插件映射
+    with open("commands.json", "r", encoding="utf-8") as f:
+        commands = json.load(f)
+    root_transfer = commands["root_transfer"]
+    transfer = commands["transfer"]
+    task_dict = commands["task_dict"]
+
+async def _reload_official_openclaw_plugin():
+    loader = getattr(bot, "plugin_loader", None)
+    if loader is None:
+        return False
+    if "openclaw" in loader.plugins:
+        return await loader.reload_plugin("openclaw")  # 官方插件热重载
+    return (await loader.load_plugin("openclaw")) is not None
+```
+
+在群消息处理里监听 root 用户的 `#重载`：
+
+```python
+if str(msg.user_id) == root_id and message.startswith("#重载"):
+    reload()
+    ok = await _reload_official_openclaw_plugin()
+    await msg.reply(text="重载成功" if ok else "重载完成，但 openclaw 重载失败", at=msg.user_id)
+    return
+```
+
+说明：
+
+- `reload()` 负责更新 `commands.json` 与你自定义插件路由。
+- `_reload_official_openclaw_plugin()` 负责刷新官方插件系统中的 `openclaw` 实例。
+- 这样改完 `openclaw.yaml`、`openclaw_prompt.md` 后，无需重启进程即可生效。
