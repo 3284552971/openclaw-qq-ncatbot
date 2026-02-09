@@ -1,0 +1,86 @@
+# ===== 群聊白名单 =====
+# 为空时表示所有群可用；非空时仅这些群可触发 openclaw
+group_pool:
+  - 984477845
+  - 1082787090
+  - 1080141352
+
+# ===== 次数限流（群聊非 root 用户）=====
+# window_seconds: 统计窗口（秒）
+# max_questions: 窗口内最多提问次数；0 表示关闭限制
+rate_limit:
+  window_seconds: 0
+  max_questions: 0
+
+# ===== Token 限流（群聊非 root 用户）=====
+# max_tokens: 窗口内累计 token 上限；0 表示关闭限制
+token_limit:
+  window_seconds: 0
+  max_tokens: 0
+
+# ===== Root 用户列表 =====
+# 用于私聊直通、群模式管理等高权限逻辑
+root_ids:
+  - 3284552971
+
+# ===== 图片目录监听（可选）=====
+# 若开启，会扫描目录中新图片并自动发送
+image_watch:
+  enabled: false
+  root_dir: data/imagedata
+  poll_seconds: 2
+
+# ===== 远程 OpenClaw 网关配置 =====
+# invoke_mode=remote 时使用
+remote:
+  host: 127.0.0.1
+  port: 18789
+  token: "83273343c8e93db5906940c60053ef037c06ecc52c9b6a0d"
+  timeout_seconds: 120
+
+# ===== 运行模式 =====
+# invoke_mode:
+# - auto: 优先 CLI，找不到 CLI 时回退 remote
+# - cli: 强制本地命令行调用
+# - remote: 强制远程网关调用
+# cli_stateless=true 时每次请求都使用新会话（更“单轮”）
+runtime:
+  invoke_mode: auto
+  cli_cmd: openclaw
+  cli_timeout_seconds: 180
+  cli_stateless: false
+
+# ===== 本地桥接 HTTP 服务 =====
+# 仅在 CLI 模式下可用（remote 模式下会禁用）
+bridge:
+  enabled: true
+  host: 127.0.0.1
+  port: 18999
+  token: "83273343c8e93db5906940c60053ef037c06ecc52c9b6a0d"
+  # 允许桥接读写的根目录（建议使用相对路径）
+  allowed_paths:
+    - ./data
+
+# ===== 上下文缓存 =====
+# 控制最近消息缓存规模，以及注入到 prompt 的窗口大小
+context:
+  enabled: true
+  max_messages_per_channel: 300
+  default_recent_limit: 20
+  default_recent_max_chars: 4000
+  prompt_recent_limit: 12
+  prompt_recent_max_chars: 1500
+
+# ===== 图片工具配置 =====
+image_tool:
+  download_root: data/downloads/images
+  download_timeout_seconds: 30
+  download_max_mb: 20
+  read_allow_base64: false
+  read_max_base64_chars: 200000
+
+# ===== 文件工具配置 =====
+file_tool:
+  download_root: data/downloads/files
+  download_timeout_seconds: 60
+  download_max_mb: 50
