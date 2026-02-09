@@ -21,7 +21,7 @@
 ```yaml
 # 群聊白名单。为空时所有群可用；非空时仅列表群可触发。
 group_pool:
-  - 1080141352
+  - 1080  #群聊QQ号
 
 # 次数限流（群聊非 root 用户）。0 表示关闭。
 rate_limit:
@@ -35,12 +35,12 @@ token_limit:
 
 # root 用户（私聊直通、群聊模式控制等）。
 root_ids:
-  - 3284552971
+  - 3284552971  #这是煮包的QQ号
 
 remote:
   host: 127.0.0.1
   port: 18789
-  token: "YOUR_OPENCLAW_TOKEN"
+  token: "YOUR_OPENCLAW_TOKEN"  #煮包是本地部署openclaw所以token给你们看了也没事
   timeout_seconds: 120
 
 runtime:
@@ -106,6 +106,20 @@ file_tool:
 - 私聊：仅 `root_ids` 中用户直通 openclaw
 - 群内 `#` 命令由主程序自定义命令分发处理
 
+## 会话重置（上下文清空）
+
+支持通过自然语言命令重置当前会话上下文：
+
+- 命令词：`新建对话`
+- 私聊触发：root 用户在私聊直接发送 `新建对话`
+- 群聊触发：在群里 `@机器人 新建对话`
+
+行为说明：
+
+- 插件会向 OpenClaw 当前会话发送 `/new`，清空该会话上下文并继续复用同一会话键
+- 若 OpenClaw 侧历史被手动删除导致会话不存在，插件会自动重建会话并提示用户
+- 若当前还没有可重置的会话，会返回提示而不会报错
+
 ## 模式差异
 
 - `cli` 模式：可用桥接工具，适合强耦合联动
@@ -121,22 +135,3 @@ python main.py
 
 - 你的自定义插件分发
 - 官方 `openclaw` 插件实例
-
-## 发布到 GitHub（建议）
-
-如果你要把插件单独发布成仓库，建议把 `plugins/openclaw` 目录作为仓库根目录。
-
-```bash
-cd plugins/openclaw
-git init
-git add .
-git commit -m "feat: initial openclaw plugin release"
-```
-
-然后在 GitHub 创建空仓库（网页或 `gh`），再执行：
-
-```bash
-git branch -M main
-git remote add origin <YOUR_GITHUB_REPO_URL>
-git push -u origin main
-```
