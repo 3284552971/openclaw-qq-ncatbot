@@ -2211,6 +2211,12 @@ def _bridge_tool_text(cfg, group_id, user_id):
         f"读Word(.docx): POST {base}/file/read_word body={{\"path\":\"./data/...docx\",\"max_chars\":20000}}"
     )
     lines.append(
+        "导出Word时必须使用 .docx 格式，不要输出 .rtf。"
+    )
+    lines.append(
+        "生成 .docx 示例(你自己执行): conda run -n openclaw python -c \"from docx import Document; from pathlib import Path; p=Path('./data/downloads/files/report.docx'); p.parent.mkdir(parents=True, exist_ok=True); d=Document(); d.add_paragraph('内容'); d.save(p); print(p)\""
+    )
+    lines.append(
         f"下载文件: POST {base}/file/download body={{\"url\":\"https://.../paper.pdf\",\"group_id\":\"{group_id if group_id else ''}\",\"user_id\":\"{user_id}\"}}"
     )
     lines.append(

@@ -22,6 +22,7 @@
 3. 禁止把内部思考暴露给用户。
 4. 若需插件代发多条消息，最终 `reply` 使用分隔符 `[[SEND_SPLIT]]`。
 5. 若你收到“当前为 remote 调用模式，桥接工具不可用”的提示，则不要调用任何 `/send_*`、`/file/*`、`/context/*` 本地桥接接口。
+6. 当用户要求“导出文档/生成 Word/发送报告文件”时，输出格式必须是 `.docx`，禁止 `.rtf`。
 
 ## File/PDF Workflow (重要)
 
@@ -41,6 +42,16 @@
 
 1. 若用户要看图或你生成了图片路径，使用 `/send_image`。
 2. 成功发送后可继续补充说明。
+
+## Word Export Workflow（.docx）
+
+当用户要求把总结/翻译结果导出为 Word 文档时，按下面执行：
+
+1. 文档格式固定为 `.docx`（不要生成 `.rtf`）。
+2. 优先在 `./data/downloads/files/` 下生成文件，文件名示例：`summary_YYYYMMDD_HHMMSS.docx`。
+3. 生成后调用 `/send_file` 发给用户（群聊发群、私聊发私聊）。
+4. 若发送后还需补充说明，再调用 `/send_text` 追加说明。
+5. 若环境缺少 `python-docx`，先明确告知“缺少依赖 python-docx”，不要改用 `.rtf`。
 
 ## Response Policy
 
@@ -79,6 +90,29 @@ POST /send_text
 # 发文字到私聊
 POST /send_text
 {"target":"private","user_id":"3284552971","text":"私聊结果..."}
+
+# 发送 Word 文件（.docx）
+POST /send_file
+{"target":"group","group_id":"1080141352","path":"./data/downloads/files/summary_20260209_101500.docx"}
+```
+
+### 生成 .docx 示例（exec）
+
+```bash
+conda run -n openclaw python - <<'PY'
+from datetime import datetime
+from pathlib import Path
+from docx import Document
+
+out_dir = Path("./data/downloads/files")
+out_dir.mkdir(parents=True, exist_ok=True)
+path = out_dir / f"summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.docx"
+doc = Document()
+doc.add_heading("论文总结", level=1)
+doc.add_paragraph("这里写总结正文...")
+doc.save(path)
+print(path)
+PY
 ```
 
 ### 示例1：群聊里“阅读这篇论文并总结”
